@@ -1,0 +1,18 @@
+# gevoelig/overbodig
+.env
+.env.*           # als je ooit .env.local of .env.prod gebruikt
+/vendor/
+node_modules/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# DB lokaal niet meesturen
+/data/*.db
+/data/*.sqlite
+/data/*.sqlite3
+
+# laat deze wél mee in repo voor lege map + protectie
+!/data/.gitkeep
+!/data/.htaccess

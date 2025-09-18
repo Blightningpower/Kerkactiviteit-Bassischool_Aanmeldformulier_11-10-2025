@@ -1,0 +1,70 @@
+name: Deploy via SFTP
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      # Installeert vendor/ op de runner zodat die mee wordt geüpload
+      - name: Install Composer deps
+        run: |
+          composer install --no-dev --prefer-dist --optimize-autoloader
+
+      # Maak .env vanuit GitHub Secrets (BANK + SMTP)
+      - name: Create .env from Secrets
+        run: |
+          cat > .env << 'EOF'
+          APP_TIMEZONE=Europe/Amsterdam
+          APP_BASE_URL=${{ secrets.APP_BASE_URL }}
+          APP_ENV=production
+
+          # Ontvanger (bank)
+          RECEIVER_NAME=${{ secrets.RECEIVER_NAME }}
+          RECEIVER_IBAN=${{ secrets.RECEIVER_IBAN }}
+          RECEIVER_BIC=${{ secrets.RECEIVER_BIC }}
+
+          # Reserveringen (in uren)
+          RESERVATION_HOURS=${{ secrets.RESERVATION_HOURS }}
+
+          # Mail (PHPMailer via SMTP)
+          SMTP_HOST=${{ secrets.SMTP_HOST }}
+          SMTP_PORT=${{ secrets.SMTP_PORT }}
+          SMTP_SECURE=${{ secrets.SMTP_SECURE }}
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          SMTP_FROM_EMAIL=${{ secrets.SMTP_FROM_EMAIL }}
+          SMTP_FROM_NAME=${{ secrets.SMTP_FROM_NAME }}
+          ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+
+          # Beveiliging admin-link
+          ADMIN_TOKEN=${{ secrets.ADMIN_TOKEN }}
+          EOF
+
+      - name: Ensure data dir
+        run: |
+          mkdir -p data
+          touch data/.gitkeep
+
+      - name: Deploy files to server (SFTP)
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: ${{ secrets.SSH_USER }}
+          server: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          local_path: "./"
+          remote_path: ${{ secrets.REMOTE_PATH }}
+          args: "-rltgoDzvO --delete --exclude-from=.deployignore"

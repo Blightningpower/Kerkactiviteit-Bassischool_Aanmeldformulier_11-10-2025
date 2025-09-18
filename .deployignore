@@ -1,0 +1,5 @@
+.git*
+.github/
+node_modules/
+# behoud de database op de server
+/data/payments.db

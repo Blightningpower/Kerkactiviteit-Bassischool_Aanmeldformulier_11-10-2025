@@ -1,130 +1,93 @@
-:root {
-    --bg: #0f172a;
-    --card: #111827;
-    --txt: #e5e7eb;
-    --muted: #9ca3af;
-    --accent: #22c55e;
-    --red: #ef4444;
-    --amber: #f59e0b;
+:root{
+  --bg:#0f172a; --card:#111827; --txt:#e5e7eb; --muted:#9ca3af;
+  --accent:#22c55e; --red:#ef4444; --amber:#f59e0b; --border:rgba(255,255,255,.12)
 }
 
-* {
-    box-sizing: border-box
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--txt);
+  font:16px/1.5 system-ui, Segoe UI, Roboto, Arial
 }
 
-body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--txt);
-    font: 16px/1.5 system-ui, Segoe UI, Roboto, Arial
+a{color:inherit}
+.container{max-width:800px; margin:0 auto; padding:24px}
+.card{
+  background:var(--card); padding:20px; border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.3)
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 24px
-}
+h1{font-size:28px; margin:0 0 12px}
+h2{margin:0 0 8px}
 
-.card {
-    background: var(--card);
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
-}
+.notice ul{margin:8px 0 0 18px}
+.status{margin:12px 0}
 
-h1 {
-    font-size: 28px;
-    margin: 0 0 12px
-}
+.tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px}
+.tag-red{background:rgba(239,68,68,.15); color:#fecaca}
+.tag-amber{background:rgba(245,158,11,.15); color:#fde68a}
 
-h2 {
-    margin-top: 0
+form.card{display:grid; gap:16px}
+fieldset{
+  border:1px solid var(--border);
+  border-radius:12px; padding:12px
 }
+legend{padding:0 6px; color:var(--muted); font-size:14px}
 
-.notice ul {
-    margin: 8px 0 0 18px
-}
-
-.status {
-    margin: 12px 0
-}
-
-.tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 12px
-}
-
-.tag-red {
-    background: rgba(239, 68, 68, .15);
-    color: #fecaca
-}
-
-.tag-amber {
-    background: rgba(245, 158, 11, .15);
-    color: #fde68a
-}
-
-
-form.card {
-    display: grid;
-    gap: 16px
-}
-
-fieldset {
-    border: 1px solid rgba(255, 255, 255, .1);
-    border-radius: 12px;
-    padding: 12px
-}
-
-legend {
-    padding: 0 6px;
-    color: var(--muted)
-}
-
-label {
-    display: grid;
-    gap: 6px;
-    margin: 8px 0
-}
+label{display:grid; gap:6px; margin:8px 0}
 
 input[type=text],
-input[type=tel] {
-    background: #0b1220;
-    color: var(--txt);
-    border: 1px solid rgba(255, 255, 255, .1);
-    border-radius: 10px;
-    padding: 10px
+input[type=tel],
+input[type=email],
+input[type=number]{
+  width:100%;
+  background:#0b1220;
+  color:var(--txt);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px;
+  outline:none;
+  transition:border-color .15s ease, box-shadow .15s ease;
+  appearance:textfield;
+}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+
+input:focus{
+  border-color:rgba(34,197,94,.6);
+  box-shadow:0 0 0 3px rgba(34,197,94,.15)
 }
 
-.option {
-    display: flex;
-    align-items: center;
-    gap: 8px
+.option{display:flex; align-items:center; gap:8px}
+.muted{color:var(--muted)}
+
+.check{display:flex; gap:8px; align-items:flex-start}
+.check input[type=checkbox]{margin-top:3px}
+
+.btn{
+  display:inline-block; cursor:pointer; user-select:none;
+  background:var(--accent); color:#052e14;
+  border:none; padding:12px 16px; border-radius:12px;
+  text-decoration:none; font-weight:600; transition:filter .15s ease, opacity .15s ease
+}
+.btn:hover{filter:brightness(1.05)}
+.btn[disabled], .btn.disabled{opacity:.6; cursor:not-allowed}
+
+.btn.secondary{
+  background:transparent; color:var(--txt);
+  border:1px solid var(--border)
 }
 
-.muted {
-    color: var(--muted)
-}
+img{max-width:100%; height:auto; display:block}
+.card img{border-radius:12px}
 
-.check {
-    display: flex;
-    gap: 8px;
-    align-items: flex-start
-}
+/* kleine helpers */
+.row{display:flex; gap:12px; flex-wrap:wrap}
+.col{flex:1 1 220px}
 
-.btn {
-    display: inline-block;
-    background: var(--accent);
-    color: #052e14;
-    border: none;
-    padding: 12px 16px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: 600
-}
-
-.btn:hover {
-    filter: brightness(1.05)
+@media (max-width:480px){
+  .container{padding:16px}
+  h1{font-size:24px}
+  fieldset{padding:10px}
+  .btn{width:100%; text-align:center}
 }

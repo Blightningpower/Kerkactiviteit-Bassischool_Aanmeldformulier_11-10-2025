@@ -6,7 +6,7 @@ $now = now();
 $closed = $now > $DEADLINE;
 
 $activeBus = active_bus_count($pdo);   // uit db.php
-$busFull   = $activeBus >= $BUS_CAPACITY;
+$busFull = $activeBus >= $BUS_CAPACITY;
 
 ?>
 <!doctype html>
@@ -17,6 +17,10 @@ $busFull   = $activeBus >= $BUS_CAPACITY;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dagje Bobbejaanland – Aanmelden & Betalen</title>
     <link rel="stylesheet" href="style.css" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon_io/favicon-16x16.png">
 </head>
 
 <body>
@@ -45,8 +49,8 @@ $busFull   = $activeBus >= $BUS_CAPACITY;
 
         <section class="status">
             <p><strong>Busplekken:</strong>
-               <?= htmlspecialchars((string)min($activeBus, $BUS_CAPACITY)) ?> / <?= $BUS_CAPACITY ?> bezet
-               <?= $busFull ? '— <span class="tag tag-red">Bus vol</span>' : '' ?>
+                <?= htmlspecialchars((string) min($activeBus, $BUS_CAPACITY)) ?> / <?= $BUS_CAPACITY ?> bezet
+                <?= $busFull ? '— <span class="tag tag-red">Bus vol</span>' : '' ?>
             </p>
             <?php if ($closed): ?>
                 <p class="tag tag-red">Inschrijving gesloten (na 1 oktober 2025).</p>
@@ -69,7 +73,7 @@ $busFull   = $activeBus >= $BUS_CAPACITY;
                         <input type="number" name="group_class" min="1" max="8" required>
                     </label>
                     <label>Telefoon deelnemer of contact <input type="tel" name="phone" required></label>
-                    <label>E-mail (optioneel, voor betaallink) <input type="email" name="contact_email"></label>
+                    <label>E-mail<input type="email" name="contact_email" required></label>
                 </fieldset>
 
                 <fieldset>
@@ -104,7 +108,7 @@ $busFull   = $activeBus >= $BUS_CAPACITY;
                     rekening zijn.
                 </label>
 
-                <button type="submit" class="btn">Verder naar betalen</button>
+                <button type="submit" class="btn" style="cursor:pointer;">Verder naar betalen</button>
             </form>
         <?php endif; ?>
     </main>
@@ -127,4 +131,5 @@ $busFull   = $activeBus >= $BUS_CAPACITY;
         })();
     </script>
 </body>
+
 </html>

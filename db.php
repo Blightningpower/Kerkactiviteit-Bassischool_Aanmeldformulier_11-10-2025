@@ -43,12 +43,12 @@ $add = function (string $name, string $type) use (&$cols, $pdo) {
 };
 
 $add('parent_required', 'INTEGER DEFAULT 0');
-$add('parent_name',     'TEXT');
-$add('parent_phone',    'TEXT');
-$add('parent_email',    'TEXT');
-$add('contact_email',   'TEXT');
-$add('emailed',         'INTEGER DEFAULT 0');
-$add('expires_at',      'TEXT');
+$add('parent_name', 'TEXT');
+$add('parent_phone', 'TEXT');
+$add('parent_email', 'TEXT');
+$add('contact_email', 'TEXT');
+$add('emailed', 'INTEGER DEFAULT 0');
+$add('expires_at', 'TEXT');
 
 /**
  * Aantal actieve busplekken:
@@ -67,7 +67,7 @@ function active_bus_count(PDO $pdo): int
     ");
     $stmt->execute([$nowAtom]);
     $row = $stmt->fetch();
-    return (int)($row['c'] ?? 0);
+    return (int) ($row['c'] ?? 0);
 }
 
 /** Betaalde busplekken (gebruikt o.a. bij markeren betaald) */
@@ -75,5 +75,5 @@ function bus_count_paid(PDO $pdo): int
 {
     $stmt = $pdo->query("SELECT COUNT(*) AS c FROM payments WHERE status='paid' AND option='bus'");
     $row = $stmt->fetch();
-    return (int)($row['c'] ?? 0);
+    return (int) ($row['c'] ?? 0);
 }

@@ -83,8 +83,8 @@ if ($tikkieUrl === '') {
                         (<?= htmlspecialchars($RECEIVER_NAME, ENT_QUOTES, 'UTF-8') ?>)
                     </li>
                     <li><strong>Omschrijving:</strong>
-                        <em><?= htmlspecialchars($child, ENT_QUOTES, 'UTF-8') ?></em>
-                        (zet dit exact zo in je overschrijving)
+                        <?= htmlspecialchars($child, ENT_QUOTES, 'UTF-8') ?>
+                        <strong>(zet dit exact zo in de omschrijving bij de tikkie)</strong>
                     </li>
                 </ul>
                 <p>

@@ -154,7 +154,7 @@ $userHtml = '<h3>We hebben je aanmelding ontvangen</h3>'
   . 'én dit per e-mail hebben bevestigd.</p>'
   . $holdNoteHtml
   . '<br><br>'
-  . 'Was betalen nog niet gelukt? Hieronder staan de betaalinstructies:'
+  . 'Was betalen nog niet gelukt? Hieronder staat de informatie voor een handmatige betaling:'
   . '<h4>Betaalinstructies</h4>'
   . '<ul>'
   . '<li><strong>Bedrag:</strong> €' . number_format($amountEur, 2, ',', '.') . ' (' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . ')</li>'

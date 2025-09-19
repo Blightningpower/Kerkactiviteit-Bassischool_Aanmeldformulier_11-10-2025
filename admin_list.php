@@ -43,7 +43,7 @@ $paidBus = bus_count_paid($pdo); // betaald=definitief; voor reserveringen kun j
         href="<?= htmlspecialchars(base_url('img/favicon_io/favicon-16x16.png'), ENT_QUOTES, 'UTF-8') ?>">
     <link rel="manifest" href="<?= htmlspecialchars(base_url('site.webmanifest'), ENT_QUOTES, 'UTF-8') ?>">
     <meta name="theme-color" content="#0f172a">
-    
+
     <style>
         table {
             width: 100%;
@@ -99,7 +99,7 @@ $paidBus = bus_count_paid($pdo); // betaald=definitief; voor reserveringen kun j
 </head>
 
 <body>
-    <main class="container">
+    <main>
         <div class="card">
             <h2>Admin – Aanmeldingen</h2>
 
@@ -164,17 +164,6 @@ $paidBus = bus_count_paid($pdo); // betaald=definitief; voor reserveringen kun j
                                         Instructies
                                     </a>
 
-                                    <!-- Tikkie link opslaan -->
-                                    <form method="post"
-                                        action="<?= htmlspecialchars(base_url('admin_set_tikkie.php'), ENT_QUOTES, 'UTF-8') ?>">
-                                        <input type="hidden" name="token"
-                                            value="<?= htmlspecialchars($ADMIN_TOKEN, ENT_QUOTES, 'UTF-8') ?>">
-                                        <input type="hidden" name="ref"
-                                            value="<?= htmlspecialchars((string) $r['session_id'], ENT_QUOTES, 'UTF-8') ?>">
-                                        <input type="url" name="tikkie_url" placeholder="https://tikkie.me/…"
-                                            value="<?= htmlspecialchars((string) ($r['tikkie_url'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                                        <button class="btn" style="background:#0ea5e9">Opslaan</button>
-                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

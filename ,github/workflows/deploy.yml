@@ -16,14 +16,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
+          tools: composer:v2
           coverage: none
 
       # Installeert vendor/ op de runner zodat die mee wordt geüpload
       - name: Install Composer deps
-        run: |
-          composer install --no-dev --prefer-dist --optimize-autoloader
+        run: composer install --no-dev --prefer-dist --optimize-autoloader
 
-      # Maak .env vanuit GitHub Secrets (BANK + SMTP)
+      # Maak .env vanaf Secrets (BANK + SMTP + ADMIN)
       - name: Create .env from Secrets
         run: |
           cat > .env << 'EOF'
@@ -36,8 +36,15 @@ jobs:
           RECEIVER_IBAN=${{ secrets.RECEIVER_IBAN }}
           RECEIVER_BIC=${{ secrets.RECEIVER_BIC }}
 
-          # Reserveringen (in uren)
+          # Reserveringen
+          # Gebruik deze als je config PENDING_HOLD_MINUTES verwacht:
+          PENDING_HOLD_MINUTES=${{ secrets.PENDING_HOLD_MINUTES }}
+          # Of laat bovenstaande leeg en gebruik (fallback) uren:
           RESERVATION_HOURS=${{ secrets.RESERVATION_HOURS }}
+
+          # Tikkie (optioneel, globale links)
+          TIKKIE_URL_29=${{ secrets.TIKKIE_URL_29 }}
+          TIKKIE_URL_45=${{ secrets.TIKKIE_URL_45 }}
 
           # Mail (PHPMailer via SMTP)
           SMTP_HOST=${{ secrets.SMTP_HOST }}
@@ -47,9 +54,12 @@ jobs:
           SMTP_PASS=${{ secrets.SMTP_PASS }}
           SMTP_FROM_EMAIL=${{ secrets.SMTP_FROM_EMAIL }}
           SMTP_FROM_NAME=${{ secrets.SMTP_FROM_NAME }}
-          ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
 
-          # Beveiliging admin-link
+          # Admin-meldingen (één of meerdere)
+          ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+          ADMIN_EMAILS=${{ secrets.ADMIN_EMAILS }}
+
+          # Beveiliging admin-links
           ADMIN_TOKEN=${{ secrets.ADMIN_TOKEN }}
           EOF
 

@@ -1,7 +1,8 @@
 {
-        "require": {
-                "php": "^8.1",
-                "phpmailer/phpmailer": "^6.10",
-                "endroid/qr-code": "^5.0"
-        }
+  "require": {
+    "php": "^8.1",
+    "ext-pdo": "*",
+    "ext-sqlite3": "*",
+    "phpmailer/phpmailer": "^6.10"
+  }
 }

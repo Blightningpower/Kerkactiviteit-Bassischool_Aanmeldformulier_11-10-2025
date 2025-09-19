@@ -1,6 +1,18 @@
+Options -Indexes
+
 <IfModule mod_authz_core.c>
+  <FilesMatch "^(composer\.(json|lock)|\.env)">
     Require all denied
+  </FilesMatch>
+  <FilesMatch "\.(db|sqlite|sqlite3)$">
+    Require all denied
+  </FilesMatch>
 </IfModule>
 <IfModule !mod_authz_core.c>
+  <FilesMatch "^(composer\.(json|lock)|\.env)">
     Deny from all
+  </FilesMatch>
+  <FilesMatch "\.(db|sqlite|sqlite3)$">
+    Deny from all
+  </FilesMatch>
 </IfModule>

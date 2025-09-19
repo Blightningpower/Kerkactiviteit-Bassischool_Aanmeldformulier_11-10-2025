@@ -4,91 +4,88 @@ declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
 
-$token = $_GET['token'] ?? '';
-$ref = $_GET['ref'] ?? '';
-$action = $_GET['action'] ?? 'paid'; // 'paid' of 'cancel'
+$token  = $_GET['token']  ?? '';
+$ref    = $_GET['ref']    ?? '';
+$action = $_GET['action'] ?? 'confirm'; // confirm | cancel
 
-// Beveiliging
-if (!hash_equals((string) $ADMIN_TOKEN, (string) $token)) {
+if ($token !== ($ADMIN_TOKEN ?? '')) {
     http_response_code(403);
     exit('Forbidden');
 }
-if ($ref === '') {
-    http_response_code(400);
-    exit('Missing ref');
-}
 
-// Haal inschrijving op
 $stmt = $pdo->prepare('SELECT * FROM payments WHERE session_id = ?');
 $stmt->execute([$ref]);
 $row = $stmt->fetch();
+
 if (!$row) {
     http_response_code(404);
-    exit('Not found');
+    exit('Onbekende referentie.');
 }
 
-// Annuleren (admin)
-if ($action === 'cancel') {
-    $pdo->prepare('UPDATE payments SET status = ?, expires_at = NULL WHERE session_id = ?')
-        ->execute(['cancelled', $ref]);
-    $msg = 'Reservering geannuleerd.';
-    goto respond;
-}
+$status = (string)($row['status']       ?? 'pending');
+$option = (string)($row['option']       ?? 'zonder_bus');
+$child  = (string)($row['child_name']   ?? '');
+$email  = (string)($row['contact_email'] ?? ''); // let op: kolomnaam is contact_email
 
-// Idempotency & status-checks
-if (($row['status'] ?? '') === 'paid') {
-    $msg = 'Deze inschrijving was al als betaald gemarkeerd.';
-    goto respond;
-}
-if (($row['status'] ?? '') === 'cancelled') {
-    $msg = 'Deze inschrijving is eerder geannuleerd.';
-    goto respond;
-}
+// Handige redirect helper met melding
+$back = function (string $msg) use ($ADMIN_TOKEN): never {
+    header('Location: ' . base_url('admin_list.php?token=' . urlencode($ADMIN_TOKEN) . '&msg=' . urlencode($msg)));
+    exit;
+};
 
-// Bij "paid": respecteer buslimiet (zet op wachtlijst indien vol)
-$option = $row['option'] ?? 'zonder_bus';
-if ($option === 'bus') {
-    $alreadyPaidBus = bus_count_paid($pdo);
-    if ($alreadyPaidBus >= $BUS_CAPACITY) {
-        $option = 'bus_waitlist';
+if ($action === 'confirm') {
+
+    // Idempotent: als al betaald, niet nogmaals schrijven
+    if ($status === 'paid') {
+        $back('Deze aanmelding was al bevestigd.');
     }
+
+    // Capaciteit bewaken met file-lock om race-conditions te vermijden
+    with_lock('mark_paid_bus', function () use ($pdo, $ref, $option, $back, $child, $email) {
+        // Haal globale instellingen binnen (lost VS Code warning op)
+        global $BUS_CAPACITY, $TIMEZONE;
+
+        // Als het om de bus gaat: check betaalde plekken
+        if ($option === 'bus') {
+            $paid = bus_count_paid($pdo);
+            if ($paid >= $BUS_CAPACITY) {
+                $back('Bus zit vol — niet bevestigd.');
+            }
+        }
+
+        // Markeer als betaald
+        $pdo->prepare('UPDATE payments SET status = ? WHERE session_id = ?')->execute(['paid', $ref]);
+
+        // Mail naar deelnemer/ouder
+        if ($email) {
+            $html = '<p>Beste ouder/deelnemer,</p>'
+                  . '<p>De aanmelding voor <strong>' . htmlspecialchars($child) . '</strong> is '
+                  . '<strong>bevestigd</strong>. Tot bij de activiteit!</p>';
+            send_user_mail($email, 'Aanmelding bevestigd – Bobbejaanland', $html, strip_tags($html));
+        }
+    });
+
+    $back('Aanmelding bevestigd.');
+
+} elseif ($action === 'cancel') {
+
+    // Idempotent: als al geannuleerd, niet nogmaals schrijven
+    if ($status === 'cancelled') {
+        $back('Deze aanmelding was al geannuleerd.');
+    }
+
+    $pdo->prepare('UPDATE payments SET status = ? WHERE session_id = ?')->execute(['cancelled', $ref]);
+
+    if ($email) {
+        $html = '<p>Beste ouder/deelnemer,</p>'
+              . '<p>De aanmelding voor <strong>' . htmlspecialchars($child) . '</strong> is '
+              . '<strong>geannuleerd</strong>.</p>';
+        send_user_mail($email, 'Aanmelding geannuleerd – Bobbejaanland', $html, strip_tags($html));
+    }
+
+    $back('Aanmelding geannuleerd.');
+
+} else {
+    http_response_code(400);
+    exit('Ongeldige actie.');
 }
-
-// Update naar betaald
-$pdo->prepare('UPDATE payments SET status = ?, option = ?, expires_at = NULL WHERE session_id = ?')
-    ->execute(['paid', $option, $ref]);
-
-$msg = ($option === 'bus_waitlist')
-    ? 'Betaald gemarkeerd: BUS VOL – geplaatst op wachtlijst.'
-    : 'Betaald gemarkeerd.';
-
-// --- Eenvoudige HTML-respons ---
-respond:
-?>
-<!doctype html>
-<html lang="nl">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Markeer betaald – <?= htmlspecialchars($ref, ENT_QUOTES, 'UTF-8') ?></title>
-    <link rel="stylesheet" href="style.css">
-
-    <link rel="apple-touch-icon" sizes="180x180" href="img/favicon_io/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon_io/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon_io/favicon-16x16.png">
-</head>
-
-<body>
-    <main class="container">
-        <div class="card">
-            <h2>Admin-actie</h2>
-            <p><?= htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') ?></p>
-            <p class="muted">Ref: <code><?= htmlspecialchars($ref, ENT_QUOTES, 'UTF-8') ?></code></p>
-            <p><a class="btn" href="<?= htmlspecialchars(base_url('index.php'), ENT_QUOTES, 'UTF-8') ?>">Terug naar
-                    aanmeldpagina</a></p>
-        </div>
-    </main>
-</body>
-
-</html>

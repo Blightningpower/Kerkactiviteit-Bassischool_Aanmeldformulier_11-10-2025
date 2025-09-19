@@ -1,6 +1,8 @@
 # gevoelig/overbodig
 .env
-.env.*           # als je ooit .env.local of .env.prod gebruikt
+.env.*           # bv. .env.local, .env.prod
+!.env.example    # maar wél het voorbeeld-bestand tracken
+
 /vendor/
 node_modules/
 .idea/
